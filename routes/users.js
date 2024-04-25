@@ -1,4 +1,14 @@
 const bcrypt = require('bcrypt');
+const {connect} = require ('../connect')
+const {
+  requireAuth,
+  requireAdmin,
+} = require('../middleware/auth');
+
+const {
+  getUsers,
+} = require('../controller/users');
+const users = require('../controller/users');
 
 const initAdminUser = async (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
@@ -6,11 +16,11 @@ const initAdminUser = async (app, next) => {
     return next();
   }
 
-  const db = app.get('db');
+  const db = connect();//Revisar debe ir connect
 
   try {
     // Verificar si ya existe un usuario administrador
-    const existingAdminUser = await db.collection('users').findOne({ email: adminEmail });
+    const existingAdminUser = await connect(users);
 
     if (existingAdminUser) {
       console.log('El usuario administrador ya existe en la base de datos.');
@@ -70,7 +80,7 @@ module.exports = initAdminUser;
 
 
 
-module.exports = (app, next) => {
+  module.exports = (app, next) => {
 
   app.get('/users', requireAdmin, getUsers);
 
