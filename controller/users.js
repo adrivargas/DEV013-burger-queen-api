@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getUsers } = require('../controller/users');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const usersController = require('../controller/users');
 
-router.get('/users', requireAdmin, getUsers);
+// Ruta para obtener todos los usuarios
+router.get('/', usersController.getUsers);
 
 module.exports = router;
+
