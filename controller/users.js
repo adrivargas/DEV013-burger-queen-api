@@ -1,5 +1,8 @@
-module.exports = {
-  getUsers: (req, resp, next) => {
-    // TODO: Implement the necessary function to fetch the `users` collection or table
-  },
-};
+const express = require('express');
+const router = express.Router();
+const { getUsers } = require('../controller/users');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
+
+router.get('/users', requireAdmin, getUsers);
+
+module.exports = router;
