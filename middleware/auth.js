@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const { connect } = require('../connect');  // Conexión a la base de datos
 
-module.exports = (secret) => (req, resp, next) => {
+module.exports = (secret) => async (req, resp, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -13,23 +14,32 @@ module.exports = (secret) => (req, resp, next) => {
     return next();
   }
 
-  jwt.verify(token, secret, (err, decodedToken) => {
+  jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) {
       return next(403);
     }
 
-    // TODO: Verify user identity using `decodeToken.uid`
+    // Verificar la identidad del usuario usando `decodedToken.uid`
+    const db = await connect();
+    const user = await db.collection('users').findOne({ _id: decodedToken.uid });
+
+    if (!user) {
+      return next(403);
+    }
+
+    req.user = user;
+    next();
   });
 };
 
 module.exports.isAuthenticated = (req) => (
-  // TODO: Decide based on the request information whether the user is authenticated
-  false
+  // Decidir basado en la información de la solicitud si el usuario está autenticado
+  !!req.user
 );
 
 module.exports.isAdmin = (req) => (
-  // TODO: Decide based on the request information whether the user is an admin
-  false
+  // Decidir basado en la información de la solicitud si el usuario es admin
+  req.user && req.user.roles === 'admin'
 );
 
 module.exports.requireAuth = (req, resp, next) => (
