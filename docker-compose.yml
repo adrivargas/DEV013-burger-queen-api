@@ -1,10 +1,13 @@
 version: "3"
 services:
   db:
-    # TODO: Set up your database image, we recommend one of these:
-    # https://hub.docker.com/_/mongo
-    # https://hub.docker.com/_/postgres
-    # https://hub.docker.com/_/mysql
+    image: mongo:4
+    volumes:
+      - ./db-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: bq
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    restart: always
     networks:
       - private
   node:
@@ -14,10 +17,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 8080
-      DB_URL: <CONNECTION STRING>
+      DB_URL: mongodb://bq:secret@db:27017/bq?authSource=admin
       JWT_SECRET: xxxxxxxx
       ADMIN_EMAIL: admin@localhost
-      ADMIN_PASSWORD: changeme
+      ADMIN_PASSWORD: Adriana14
     volumes:
       - ./:/home/node/app # Mount the code in the home directory of the user '_node_'
     expose:
@@ -26,6 +29,7 @@ services:
       # Map port 8080 of our container to port 80 of our
       # machine
       - 80:8080
+      - 28017:27017
     # Reinstall dependencies and start the server
     command: bash -c 'rm -rf node_modules && npm install && npm start'
     depends_on:

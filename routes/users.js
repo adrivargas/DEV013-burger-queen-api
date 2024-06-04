@@ -20,8 +20,8 @@ const initAdminUser = async (app, next) => {
 
   try {
     // Verificar si ya existe un usuario administrador
-    const existingAdminUser = await connect(users);
-
+    const existingAdminUser = await connect(users).findOne({ email: adminEmail });
+    // await db.collection('users').findOne({ email: adminEmail })
     if (existingAdminUser) {
       console.log('El usuario administrador ya existe en la base de datos.');
       return next();
